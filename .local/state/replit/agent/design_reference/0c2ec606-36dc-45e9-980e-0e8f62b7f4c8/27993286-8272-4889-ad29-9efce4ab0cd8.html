@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#5a008a',
+                        'primary-light': '#9c55cc',
+                        'primary-dark': '#4a0070'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-inter bg-gray-50">
+    
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div class="text-center">
+                <div class="mx-auto h-16 w-16 bg-primary rounded-full flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                </div>
+                <h2 class="mt-6 text-3xl font-bold text-gray-900">Academic Management System</h2>
+                <p class="mt-2 text-sm text-gray-600">Sign in to your account</p>
+            </div>
+            
+            <form class="mt-8 space-y-6" data-implementation="Handle OTP authentication">
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input id="email" name="email" type="email" required 
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"
+                               placeholder="student@university.edu" data-bind="user.email">
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input id="phone" name="phone" type="tel" required 
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"
+                               placeholder="+91 9876543210" data-bind="user.phone">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
+                            data-event="click:sendOTP">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send OTP
+                    </button>
+                </div>
+
+                <!-- OTP Input (shown after sending) -->
+                <div id="otpSection" class="hidden space-y-4" data-state="showOTP:boolean = false">
+                    <div>
+                        <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
+                        <input id="otp" name="otp" type="text" maxlength="6" 
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary text-center text-lg tracking-widest"
+                               placeholder="123456" data-bind="otp.value">
+                    </div>
+                    
+                    <button type="button" 
+                            class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-200"
+                            data-event="click:verifyOTP">
+                        <i class="fas fa-check mr-2"></i>
+                        Verify & Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <div id="dashboard" class="hidden min-h-screen bg-gray-50" data-state="currentUser:object">
+        
+        <!-- Top Navigation -->
+        <nav class="bg-white border-b border-gray-200 fixed w-full z-30 top-0">
+            <div class="px-3 py-3 lg:px-5 lg:pl-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-start">
+                        <button id="toggleSidebar" class="lg:hidden p-2 text-gray-600 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="text-xl font-semibold ml-2 md:mr-24">
+                            <span class="text-primary">Academic</span> Management
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <!-- Notifications -->
+                        <div class="relative mr-3">
+                            <button class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        
+                        <!-- User Menu -->
+                        <div class="flex items-center">
+                            <div class="flex items-center ml-3">
+                                <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                    <span class="text-white text-sm font-medium" data-bind="user.initials">AK</span>
+                                </div>
+                                <div class="ml-3 hidden sm:block">
+                                    <p class="text-sm font-medium text-gray-700" data-bind="user.name">Admin User</p>
+                                    <p class="text-xs text-gray-500" data-bind="user.role">Administrator</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 left-0 z-20 flex flex-col flex-shrink-0 w-64 h-full pt-16 font-normal duration-75 lg:flex transition-width" aria-label="Sidebar">
+            <div class="relative flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white pt-0">
+                <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                    <div class="flex-1 px-3 space-y-1">
+                        
+                        <!-- Admin Navigation -->
+                        <div id="adminNav" class="space-y-1">
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">Administration</div>
+                            <a href="#" class="bg-primary-light bg-opacity-20 text-primary group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-users mr-3"></i>
+                                Student Management
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-user-tie mr-3"></i>
+                                Faculty Management
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-layer-group mr-3"></i>
+                                Batch Management
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-bell mr-3"></i>
+                                Notices
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-file-import mr-3"></i>
+                                Bulk Import
+                            </a>
+                        </div>
+
+                        <!-- Student Navigation -->
+                        <div id="studentNav" class="space-y-1 hidden">
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">Student</div>
+                            <a href="#" class="bg-primary-light bg-opacity-20 text-primary group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-home mr-3"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-users mr-3"></i>
+                                My Batch
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-file-alt mr-3"></i>
+                                Research Documents
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-chart-line mr-3"></i>
+                                Attendance & Marks
+                            </a>
+                        </div>
+
+                        <!-- Faculty Navigation -->
+                        <div id="facultyNav" class="space-y-1 hidden">
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">Faculty</div>
+                            <a href="#" class="bg-primary-light bg-opacity-20 text-primary group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-home mr-3"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-users mr-3"></i>
+                                My Batches
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-clipboard-check mr-3"></i>
+                                Attendance
+                            </a>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+                                <i class="fas fa-star mr-3"></i>
+                                Mark Assessment
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-0 lg:ml-64 pt-16">
+            
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="p-4">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users text-2xl text-primary"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="stats.totalStudents">1,247</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-user-tie text-2xl text-primary"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Faculty Members</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="stats.totalFaculty">89</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-layer-group text-2xl text-primary"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Active Batches</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="stats.activeBatches">249</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-clock text-2xl text-orange-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Assignments</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="stats.pendingAssignments">12</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Quick Actions -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <button class="w-full flex items-center justify-start px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-plus-circle text-primary mr-3"></i>
+                                    Add New Students
+                                </button>
+                                <button class="w-full flex items-center justify-start px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-layer-group text-primary mr-3"></i>
+                                    Create New Batch
+                                </button>
+                                <button class="w-full flex items-center justify-start px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-bell text-primary mr-3"></i>
+                                    Send Notice
+                                </button>
+                                <button class="w-full flex items-center justify-start px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-file-import text-primary mr-3"></i>
+                                    Import from Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
+                            <div class="space-y-3">
+                                <!-- @MAP: recentActivities.map(activity => ( -->
+                                <div class="flex items-start space-x-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-primary-light bg-opacity-20 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-plus text-primary text-xs"></i>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm text-gray-900" data-bind="activity.description">25 new students added to B.Tech 2024 batch</p>
+                                        <p class="text-xs text-gray-500" data-bind="activity.timestamp">2 hours ago</p>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-green-600 text-xs"></i>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm text-gray-900">Batch BT-2024-05 assigned to Dr. Smith</p>
+                                        <p class="text-xs text-gray-500">5 hours ago</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-bell text-blue-600 text-xs"></i>
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm text-gray-900">Notice sent: Assignment deadline extended</p>
+                                        <p class="text-xs text-gray-500">1 day ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Management Section -->
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Batch Management</h3>
+                            <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark">
+                                <i class="fas fa-plus mr-2"></i>
+                                Create New Batch
+                            </button>
+                        </div>
+                        
+                        <!-- Batch Creation Logic Display -->
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Auto-Assignment Rules</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div class="flex items-center">
+                                    <i class="fas fa-users text-primary mr-2"></i>
+                                    <span>5 students per batch</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-graduation-cap text-primary mr-2"></i>
+                                    <span>2 B.Tech students (min-max)</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-layer-group text-primary mr-2"></i>
+                                    <span>3 from other courses</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Students -->
+                        <div class="border rounded-lg overflow-hidden">
+                            <div class="bg-yellow-50 px-4 py-3 border-b">
+                                <h4 class="text-sm font-medium text-yellow-800">Pending Assignment (7 students)</h4>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <!-- @MAP: pendingStudents.map(student => ( -->
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                                        <span class="text-xs font-medium" data-bind="student.initials">RK</span>
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <div class="text-sm font-medium text-gray-900" data-bind="student.name">Rahul Kumar</div>
+                                                        <div class="text-sm text-gray-500" data-bind="student.email">rahul@university.edu</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="student.course">B.Tech</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="student.year">2024</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Pending
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <!-- @END_MAP )) -->
+                                        
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                                        <span class="text-xs font-medium">AS</span>
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <div class="text-sm font-medium text-gray-900">Anita Singh</div>
+                                                        <div class="text-sm text-gray-500">anita@university.edu</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">MCA</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Pending
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Dashboard -->
+            <div id="studentDashboard" class="p-4 hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">Student Dashboard</h1>
+                    <p class="text-gray-600">Welcome back, <span data-bind="student.name">John Doe</span></p>
+                </div>
+
+                <!-- Student Info Card -->
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center space-x-4">
+                            <!-- Student photo placeholder using university student image -->
+                            <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                                <!-- A university student sitting at a desk with books -->
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" alt="Student photo" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-medium text-gray-900" data-bind="student.name">John Doe</h3>
+                                <p class="text-sm text-gray-600">Enrollment: <span data-bind="student.enrollmentId">CS2024001</span></p>
+                                <p class="text-sm text-gray-600">Course: <span data-bind="student.course">B.Tech Computer Science</span></p>
+                                <p class="text-sm text-gray-600">Batch: <span data-bind="student.batchId">BT-2024-01</span></p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-calendar-check text-2xl text-green-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Attendance</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="student.attendance">92%</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-star text-2xl text-yellow-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Average Marks</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="student.averageMarks">87.5</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-alt text-2xl text-blue-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Documents</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="student.documentsCount">3</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Faculty Information -->
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Assigned Faculty</h3>
+                        <!-- @MAP: assignedFaculty.map(faculty => ( -->
+                        <div class="flex items-center space-x-4 py-3 border-b border-gray-200 last:border-b-0">
+                            <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                                <!-- Faculty member teaching in a classroom -->
+                                <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" alt="Faculty photo" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-gray-900" data-bind="faculty.name">Dr. Sarah Johnson</h4>
+                                <p class="text-sm text-gray-600" data-bind="faculty.designation">Associate Professor</p>
+                                <p class="text-sm text-gray-600" data-bind="faculty.department">Computer Science Department</p>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-envelope mr-1"></i>
+                                <span data-bind="faculty.email">sarah.johnson@university.edu</span>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <!-- Research Documents -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Research Documents</h3>
+                            <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark">
+                                <i class="fas fa-upload mr-2"></i>
+                                Upload Document
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <!-- @MAP: researchDocuments.map(doc => ( -->
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-file-pdf text-red-500"></i>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900" data-bind="doc.title">Research Paper - AI Applications</p>
+                                        <p class="text-xs text-gray-500" data-bind="doc.uploadedAt">Uploaded 2 days ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" data-bind="doc.status">
+                                        Approved
+                                    </span>
+                                    <button class="text-primary hover:text-primary-dark">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Dashboard -->
+            <div id="facultyDashboard" class="p-4 hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">Faculty Dashboard</h1>
+                    <p class="text-gray-600">Manage your assigned batches and student progress</p>
+                </div>
+
+                <!-- Faculty Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-layer-group text-2xl text-primary"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Assigned Batches</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="faculty.assignedBatches">3</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users text-2xl text-blue-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Students</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="faculty.totalStudents">15</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-clock text-2xl text-orange-500"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Pending Reviews</dt>
+                                        <dd class="text-lg font-medium text-gray-900" data-bind="faculty.pendingReviews">7</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Batches -->
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">My Assigned Batches</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- @MAP: facultyBatches.map(batch => ( -->
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-sm font-medium text-gray-900" data-bind="batch.id">BT-2024-01</h4>
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </div>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><span class="font-medium">Students:</span> <span data-bind="batch.studentCount">5</span></p>
+                                    <p><span class="font-medium">Year:</span> <span data-bind="batch.year">2024</span></p>
+                                    <p><span class="font-medium">Last Updated:</span> <span data-bind="batch.lastUpdate">2 days ago</span></p>
+                                </div>
+                                <div class="mt-4 flex space-x-2">
+                                    <button class="flex-1 px-3 py-1 text-xs font-medium text-primary border border-primary rounded hover:bg-primary hover:text-white transition-colors">
+                                        View Details
+                                    </button>
+                                    <button class="flex-1 px-3 py-1 text-xs font-medium text-gray-700 border border-gray-300 rounded hover:bg-gray-50">
+                                        Mark Attendance
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Attendance Input -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Weekly Attendance Entry</h3>
+                        <form class="space-y-4" data-implementation="Handle weekly attendance submission">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="batch_select" class="block text-sm font-medium text-gray-700">Select Batch</label>
+                                    <select id="batch_select" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                                        <option>BT-2024-01</option>
+                                        <option>BT-2024-02</option>
+                                        <option>BT-2024-03</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="week_number" class="block text-sm font-medium text-gray-700">Week Number</label>
+                                    <input type="number" id="week_number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="1" data-bind="attendance.weekNumber">
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">Student Attendance</h4>
+                                <div class="space-y-2">
+                                    <!-- @MAP: batchStudents.map(student => ( -->
+                                    <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                                <span class="text-xs font-medium" data-bind="student.initials">JD</span>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900" data-bind="student.name">John Doe</span>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="attendance_john" value="present" class="form-radio text-primary">
+                                                <span class="ml-2 text-sm text-green-600">Present</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="attendance_john" value="absent" class="form-radio text-red-500">
+                                                <span class="ml-2 text-sm text-red-600">Absent</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- @END_MAP )) -->
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                <i class="fas fa-save mr-2"></i>
+                                Save Weekly Attendance
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- File Upload Modal (for document uploads) -->
+    <div id="uploadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" data-state="showUploadModal:boolean = false">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Upload Research Document</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-600" data-event="click:closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form class="space-y-4" data-implementation="Handle file upload with validation">
+                    <div>
+                        <label for="document_title" class="block text-sm font-medium text-gray-700">Document Title</label>
+                        <input type="text" id="document_title" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Enter document title">
+                    </div>
+                    <div>
+                        <label for="document_file" class="block text-sm font-medium text-gray-700">Select File</label>
+                        <input type="file" id="document_file" accept=".pdf,.doc,.docx" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary">
+                        <p class="mt-1 text-xs text-gray-500">Accepted formats: PDF, DOC, DOCX (Max 10MB)</p>
+                    </div>
+                    <div>
+                        <label for="document_remarks" class="block text-sm font-medium text-gray-700">Remarks (Optional)</label>
+                        <textarea id="document_remarks" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Add any remarks about this document"></textarea>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload
+                        </button>
+                        <button type="button" class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors" data-event="click:closeModal">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        (function() {
+            // Sample navigation functionality - replace with React Router in actual implementation
+            let currentView = 'login';
+            let userRole = 'admin'; // This would come from authentication
+            
+            // Simple view switching simulation
+            function showView(viewId) {
+                document.querySelectorAll('#loginPage, #dashboard > div[id$="Dashboard"]').forEach(el => {
+                    el.classList.add('hidden');
+                });
+                
+                if (viewId === 'login') {
+                    document.getElementById('loginPage').classList.remove('hidden');
+                    document.getElementById('dashboard').classList.add('hidden');
+                } else {
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.getElementById(viewId).classList.remove('hidden');
+                    
+                    // Show appropriate navigation
+                    document.querySelectorAll('#adminNav, #studentNav, #facultyNav').forEach(nav => {
+                        nav.classList.add('hidden');
+                    });
+                    
+                    if (viewId === 'adminDashboard') {
+                        document.getElementById('adminNav').classList.remove('hidden');
+                    } else if (viewId === 'studentDashboard') {
+                        document.getElementById('studentNav').classList.remove('hidden');
+                    } else if (viewId === 'facultyDashboard') {
+                        document.getElementById('facultyNav').classList.remove('hidden');
+                    }
+                }
+            }
+            
+            // Initialize with admin dashboard for demo
+            setTimeout(() => {
+                showView('adminDashboard');
+            }, 1000);
+            
+            // Sidebar toggle for mobile
+            document.getElementById('toggleSidebar')?.addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            // OTP section toggle simulation
+            document.querySelector('[data-event="click:sendOTP"]')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('otpSection').classList.remove('hidden');
+                this.textContent = 'Resend OTP';
+                this.innerHTML = '<i class="fas fa-redo mr-2"></i>Resend OTP';
+            });
+            
+            // Mock role switching for demo
+            window.switchRole = function(role) {
+                userRole = role;
+                if (role === 'admin') showView('adminDashboard');
+                else if (role === 'student') showView('studentDashboard');
+                else if (role === 'faculty') showView('facultyDashboard');
+            };
+            
+            // Expose for demo purposes
+            window.showView = showView;
+        })();
+    </script>
+
+    <!-- Demo Controls (Remove in production) -->
+    <div class="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-3 z-50">
+        <div class="text-xs font-medium text-gray-700 mb-2">Demo Controls:</div>
+        <div class="space-y-1">
+            <button onclick="switchRole('admin')" class="block w-full text-left px-2 py-1 text-xs text-primary hover:bg-gray-50 rounded">Admin View</button>
+            <button onclick="switchRole('student')" class="block w-full text-left px-2 py-1 text-xs text-primary hover:bg-gray-50 rounded">Student View</button>
+            <button onclick="switchRole('faculty')" class="block w-full text-left px-2 py-1 text-xs text-primary hover:bg-gray-50 rounded">Faculty View</button>
+            <button onclick="showView('login')" class="block w-full text-left px-2 py-1 text-xs text-primary hover:bg-gray-50 rounded">Login Page</button>
+        </div>
+    </div>
+
+</body>
+</html>
